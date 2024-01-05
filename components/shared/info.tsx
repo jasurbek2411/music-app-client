@@ -117,7 +117,7 @@ const Info = ({ tracks }: Props) => {
               </DialogTitle>
             </DialogHeader>
             <div className="flex flex-col space-y-2 overflow-y-scroll test max-h-[400px]">
-              {tracks?.map((track) => (
+              {tracks?.map((track, i) => (
                 <List key={track._id} track={track} />
               ))}
             </div>

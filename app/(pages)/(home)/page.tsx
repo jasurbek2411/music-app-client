@@ -5,11 +5,11 @@ import Text from "@/components/shared/text";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
-import { useState } from "react";
+import { useStore } from "@/store";
 import { ITrack } from "@/types";
 
 const Page = () => {
-  const [tracks, setTracks] = useState<ITrack[]>([]);
+  const { tracks, setTracks } = useStore();
 
   const { data, isLoading, isError } = useQuery("tracks", async () => {
     try {
@@ -22,6 +22,7 @@ const Page = () => {
     }
   });
 
+
   return (
     <div className="container mx-auto text-white ">
       {isLoading && (
@@ -31,7 +32,7 @@ const Page = () => {
       )}
       <div className="flex flex-col">
         <Info tracks={tracks} />
-        <Text />
+        {/* <Text /> */}
         <Player />
       </div>
     </div>
