@@ -1,73 +1,77 @@
-"use client";
-import { useStore } from "@/store";
-import React, { ChangeEvent, useEffect, useState } from "react";
-import { TbPlayerSkipBackFilled } from "react-icons/tb";
-import { TbPlayerSkipForwardFilled } from "react-icons/tb";
-import { TbPlayerPauseFilled } from "react-icons/tb";
-import { TbPlayerPlayFilled } from "react-icons/tb";
-
-let audio: HTMLAudioElement;
+'use client';
+import { useStore } from '@/store';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { TbPlayerSkipBackFilled } from 'react-icons/tb';
+import { TbPlayerSkipForwardFilled } from 'react-icons/tb';
+import { TbPlayerPauseFilled } from 'react-icons/tb';
+import { TbPlayerPlayFilled } from 'react-icons/tb';
 
 const Player = () => {
+  const refAudio = useRef<HTMLAudioElement | null>(null);
   const [pause, setPause] = useState(true);
   const [time, setTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
   const { changeTrack } = useStore();
 
-  if (!audio) {
-    audio = new Audio();
-  }
-
-  useEffect(() => {
-    if (changeTrack) {
-      audio.src = `http://localhost:5000/${changeTrack.audio}`;
-      audio.play();
-      setPause(false);
-    }
-  }, [changeTrack]);
-
   const onPause = () => {
-    if (pause) {
-      setPause(false);
-      audio.play();
-    } else {
-      setPause(true);
-      audio.pause();
+    if (refAudio.current) {
+      if (pause) {
+        setPause(false);
+        refAudio.current.play();
+      } else {
+        setPause(true);
+        refAudio.current.pause();
+      }
     }
   };
 
-  setInterval(() => {
-    setTime(Math.ceil(audio.currentTime));
-  }, 1000);
-  
-  setTimeout(() => {
-    setDuration(Math.ceil(audio.duration));
-  }, 5);
+  useEffect(() => {
+    setInterval(() => {
+      if (refAudio.current) {
+        setTime(refAudio.current.currentTime);
+      }
+    }, 1000);
+  }, [refAudio]);
 
   const changeProgress = (e: ChangeEvent<HTMLInputElement>) => {
-    audio.currentTime = Number(e.target.value);
+    if (refAudio.current) {
+      refAudio.current.currentTime = Number(e.target.value);
+    }
   };
 
   return (
     <div className="fixed bottom-[24px] w-[90vw] left-0 right-0 mx-auto flex  flex-col space-y-2 mt-10">
       <div className="text-[18px] flex items-center space-x-4 justify-between mx-5">
         <div>
-          {!changeTrack
-            ? "--:--"
-            : Math.floor(time / 60) + ":" + Math.floor(time % 60)}
+          {changeTrack
+            ? '--:--'
+            : String(Math.floor(time / 60)).padStart(2, '0') +
+              ':' +
+              String(Math.floor(time % 60)).padStart(2, '0')}
         </div>
         <div className="w-[70vw] text-[24px] font-[600]">
           {changeTrack?.name}
         </div>
         <div className="flex items-center">
-          {!changeTrack
-            ? "--:--"
-            : Math.floor(duration / 60) + ":" + Math.floor(duration % 60)}
+          {!refAudio?.current?.duration
+            ? '--:--'
+            : Math.floor(refAudio?.current?.duration / 60) +
+              ':' +
+              Math.floor(refAudio?.current?.duration % 60)}
         </div>
       </div>
+      <audio src="http://localhost:3000/qattu.mp3" ref={refAudio}></audio>
       <input
-        max={Number.isNaN(duration) ? 0 : duration}
+        max={
+          Number.isNaN(refAudio?.current?.duration)
+            ? 0
+            : refAudio?.current?.duration
+        }
         min={0}
         className="cursor-pointer"
         type="range"
@@ -81,7 +85,7 @@ const Player = () => {
         </div>
         <div>
           {pause ? (
-            <button disabled={!changeTrack} onClick={onPause}>
+            <button onClick={onPause}>
               <TbPlayerPlayFilled className="text-[64px] cursor-pointer hover:text-white/80 transition-all duration-300" />
             </button>
           ) : (
