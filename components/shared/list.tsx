@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { HiDotsVertical } from "react-icons/hi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -11,15 +11,12 @@ interface Props {
   track: ITrack;
 }
 
-const List = ({ track, }: Props) => {
+const List = ({ track }: Props) => {
   const { setChangeTrack } = useStore();
 
   const onClick = (track: ITrack) => {
     setChangeTrack(track);
   };
-
-
-
 
   return (
     <div

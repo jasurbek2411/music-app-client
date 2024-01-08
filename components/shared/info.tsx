@@ -1,5 +1,5 @@
 "use clinet";
-import React from "react";
+import React, { useState } from "react";
 import { MdAlbum } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
 import {
@@ -10,26 +10,49 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import List from "./list";
-import { ITrack } from "@/types";
 import { Input } from "../ui/input";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "../ui/button";
+import { useStore } from "@/store";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useAddAudio } from "@/app/hooks/useAddAudio";
 
-interface Props {
-  tracks: ITrack[];
-}
+const Info = () => {
+  const [changePicture, setChangePicture] = useState(false);
+  const [changeAudio, setChangeAudio] = useState(false);
 
-const Info = ({ tracks }: Props) => {
+  const { isOpen, onClose, onOpen } = useAddAudio();
+
   const { handleSubmit, control, register } = useForm();
+  const { tracks } = useStore();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const { refresh } = useRouter();
+
+  const handleFormSubmit = async (data: any) => {
+    const formData = new FormData();
+    formData.append("picture", data.picture[0]);
+    formData.append("audio", data.audio[0]);
+    formData.append("name", data.name);
+    formData.append("artist", data.artist);
+    formData.append("text", data.text);
+
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_URL}`, formData);
+      refresh();
+      onClose();
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className="pt-4 flex items-center space-x-4 justify-end">
       <div>
-        <Dialog>
-          <DialogTrigger className="flex items-center space-x-2 cursor-pointer group">
+        <Dialog open={isOpen}>
+          <DialogTrigger
+            onClick={onOpen}
+            className="flex items-center space-x-2 cursor-pointer group"
+          >
             <IoIosAddCircle className="text-white text-[48px] group-hover:text-white/80 transition-all duration-300" />
             Add
           </DialogTrigger>
@@ -42,7 +65,7 @@ const Info = ({ tracks }: Props) => {
             <div className="flex flex-col space-y-2 outline-none test max-h-[400px]">
               <form
                 className="flex flex-col space-y-3"
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(handleFormSubmit)}
               >
                 <Input
                   placeholder="Track name"
@@ -52,7 +75,7 @@ const Info = ({ tracks }: Props) => {
                 />
                 <Input
                   placeholder="Artist name"
-                  {...register("artis", {
+                  {...register("artist", {
                     required: "Please write the artist name",
                   })}
                 />
@@ -71,32 +94,42 @@ const Info = ({ tracks }: Props) => {
                         type="file"
                         className="hidden"
                         id="picture"
-                        onChange={(e) => field.onChange(e.target.files)}
+                        onChange={(e) => {
+                          field.onChange(e.target.files);
+                          setChangePicture(true);
+                        }}
                       />
                     )}
                   />
                   <div className="px-[20px] py-[12px] bg-white text-black rounded-md cursor-pointer">
                     Picture
                   </div>
-                  <span className="ml-2 text-white">Not optional</span>
+                  <span className="ml-2 text-white">
+                    {changePicture ? "Optional" : "Not optional"}
+                  </span>
                 </label>
                 <label className="flex items-center" htmlFor="music">
                   <Controller
                     control={control}
-                    name="track"
+                    name="audio"
                     render={({ field }) => (
                       <Input
                         type="file"
                         className="hidden"
                         id="music"
-                        onChange={(e) => field.onChange(e.target.files)}
+                        onChange={(e) => {
+                          field.onChange(e.target.files);
+                          setChangeAudio(true);
+                        }}
                       />
                     )}
                   />
                   <div className="px-[20px] py-[12px] bg-white text-black rounded-md cursor-pointer">
                     Music
                   </div>
-                  <span className="ml-2 text-white">Not optional</span>
+                  <span className="ml-2 text-white">
+                    {changeAudio ? "Optional" : "Not optional"}
+                  </span>
                 </label>
                 <Button variant={"secondary"}>Add</Button>
               </form>

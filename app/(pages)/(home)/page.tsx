@@ -1,17 +1,15 @@
 "use client";
 import Info from "@/components/shared/info";
 import Player from "@/components/shared/player";
-import Text from "@/components/shared/text";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { useStore } from "@/store";
-import { ITrack } from "@/types";
 
 const Page = () => {
-  const { tracks, setTracks } = useStore();
+  const { setTracks } = useStore();
 
-  const { data, isLoading, isError } = useQuery("tracks", async () => {
+  const { isLoading } = useQuery("tracks", async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_URL}`);
       const data = response.data;
@@ -22,7 +20,6 @@ const Page = () => {
     }
   });
 
-
   return (
     <div className="container mx-auto text-white ">
       {isLoading && (
@@ -31,8 +28,7 @@ const Page = () => {
         </div>
       )}
       <div className="flex flex-col">
-        <Info tracks={tracks} />
-        {/* <Text /> */}
+        <Info />
         <Player />
       </div>
     </div>

@@ -2,15 +2,15 @@ import { ITrack } from "@/types";
 import { create } from "zustand";
 
 type Store = {
-  changeTrack: ITrack | null;
-  setChangeTrack: (track: ITrack) => void;
   tracks: ITrack[];
+  changeTrack: ITrack | null;
+  setChangeTrack: (track: ITrack | null) => void;
   setTracks: (tracks: ITrack[]) => void;
 };
 
 export const useStore = create<Store>()((set) => ({
-  changeTrack: null,
   tracks: [],
+  changeTrack: null,
   setChangeTrack: (changeTrack) => set(() => ({ changeTrack })),
   setTracks: (tracks) =>
     set(() => {
@@ -27,4 +27,5 @@ export const useStore = create<Store>()((set) => ({
         tracks: songs,
       };
     }),
+    
 }));
